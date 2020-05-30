@@ -63,7 +63,8 @@ Reference: bob-cell
 SXWjozRsbQ14DnlzxcGf7W2geoVVGOjnnHzXWIvWFzbZTi35446bacaNbRF7Rp8d
 X8tlIC8JaMAD/1tEdw==
 -----END HANDOFF MESSAGE-----
-alise@blarg:~/p/handoff/cmd$ cat cell-number.txt 
+
+alice@blarg:~/p/handoff/cmd$ cat cell-number.txt 
 555-123-4567
 ```
 
