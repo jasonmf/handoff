@@ -1,25 +1,35 @@
 WASM_EXEC_SRC=$(shell go env GOROOT)/misc/wasm/wasm_exec.js
 
-OUTDIR=assets
+WORK=work
+ASSETS=${WORK}/assets
 
-BIN=${OUTDIR}/handoff.wasm
-HTML=${OUTDIR}/index.html
-WASM_EXEC=${OUTDIR}/wasm_exec.js
+BIN=${ASSETS}/handoff.wasm
+HTML=${ASSETS}/index.html
+SERVER=${WORK}/server
+WASM_EXEC=${ASSETS}/wasm_exec.js
 
+default: wasm
 
 wasm: ${BIN} ${HTML} ${WASM_EXEC}
+service: wasm ${SERVER}
 
-${OUTDIR}:
-	mkdir ${OUTDIR}
+container: service
+	docker build -t handoff:latest .
 
-${BIN}: main.go ../../*.go ${OUTDIR}
+${ASSETS}:
+	mkdir -p ${ASSETS}
+
+${BIN}: main.go ../../*.go ${ASSETS}
 	GOOS=js GOARCH=wasm go build -o $@
 
-${WASM_EXEC}: ${WASM_EXEC_SRC} ${OUTDIR}
+${WASM_EXEC}: ${WASM_EXEC_SRC} ${ASSETS}
 	cp ${WASM_EXEC_SRC} $@
 
-${HTML}: index.html ${OUTDIR}
-	cp index.html ${OUTDIR}/
+${HTML}: index.html ${ASSETS}
+	cp index.html ${ASSETS}/
+
+${SERVER}: ../server/main.go
+	CGO_ENABLED=0 go build -tags netgo -o $@ -ldflags="-s -w" $<
 
 clean:
-	rm -rf ${OUTDIR}
+	rm -rf ${WORK}
