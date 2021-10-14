@@ -1,0 +1,132 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("handoff.wasm"), go.importObject).then((result) => {
+            go.run(result.instance)
+            checkHash()
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Handoff!</h1>
+
+    <!--
+    <div id="choosepanel">
+        <p>I need to:</p>
+        <button type="button" onclick="chooseReceive()">
+            Receive a secret from someone else
+        </button>
+        <button type="button" onclick="chooseSend()">
+            Send someone a secret
+        </button>
+    </div>
+    -->
+
+    <div id="receivepanel" style="display: none">
+        <h1>Receive a Secret</h1>
+        <div>
+            <input id="genpubkey" name="genpubkey" type="text" size="80" disabled />
+        </div>
+        <p>A URL has been copied to your clipboard. Send this URL to the person who will send you a secret. They'll send
+            you an encrypted secret that you should paste below and press <em>Decrypt</em>.</p>
+        <div>
+            <div>
+                <label>Encrypted Secret</label>
+            </div>
+            <textarea id="recvencrypted" name="recvencrypted" cols="80" rows="20"></textarea>
+        </div>
+        <div>
+            <button type="button" onclick="decrypt()">Decrypt</button>
+        </div>
+        <div id="decryptedpanel" style="display: none">
+            <textarea id="recvdecrypted" name="recvdecrypted" cols="80" rows="20" disabled></textarea>
+        </div>
+    </div>
+
+    <div id="sendpanel" style="display: none">
+        <h1>Send a Secret</h1>
+        <div>
+            <div>
+                <label>Public Key</label>
+            </div>
+            <div>
+                <input id="sendpubkey" name="sendpubkey" type="text" size="80" disabled />
+            </div>
+        </div>
+        <div>
+            <div>
+                <label>Secret</label>
+            </div>
+            <textarea id="secret" name="secret" cols="80" rows="20"></textarea>
+        </div>
+        <div>
+            <input id="button" type="submit" name="button" value="Encrypt" onclick="encrypt()" />
+        </div>
+        <div id="encsecretpanel" style="display: none">
+            <div>
+                <label>Encrypted Secret</label>
+            </div>
+            <textarea id="encrypted" name="encrypted" cols="80" rows="20" disabled></textarea>
+            <p>Send this value back!</p>
+        </div>
+    </div>
+</body>
+<script>
+    var privateKey = ""
+    var publicKey = ""
+
+    const chooseReceive = function () {
+        receivepanel.style.display = "block"
+        //choosepanel.style.display = "none"
+
+        keyJSON = handoffGenerate()
+        const keys = JSON.parse(keyJSON)
+        const sendURL = window.location.href + "#" + keys.Public
+        genpubkey.value = sendURL
+        publicKey = keys.Public
+        privateKey = keys.Private
+
+        copyPublicKeyToClipboard()
+    }
+
+    const chooseSend = function () {
+        sendpanel.style.display = "block"
+        //choosepanel.style.display = "none"
+    }
+
+    const copyPublicKeyToClipboard = function () {
+        navigator.clipboard.writeText(genpubkey.value).then(function () {
+            /* clipboard successfully set */
+        }, function () {
+            /* clipboard write failed */
+            console.log("public key copy failed")
+        });
+    }
+
+    const decrypt = function () {
+        recvdecrypted.value = handoffDecrypt(recvencrypted.value, publicKey, privateKey)
+        decryptedpanel.style.display = "block"
+    }
+
+    const encrypt = function () {
+        encrypted.value = handoffEncrypt(sendpubkey.value, secret.value)
+        encsecretpanel.style.display = "block"
+    }
+
+    const checkHash = function () {
+        const hash = window.location.hash
+        if (hash.length > 0) {
+            sendpubkey.value = hash.slice(1)
+            chooseSend()
+        } else {
+            chooseReceive()
+        }
+    }
+</script>
+
+</html>

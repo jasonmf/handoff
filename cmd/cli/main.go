@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/AgentZombie/handoff"
+	"github.com/jasonmf/handoff"
 )
 
 func fatalIfError(err error, msg string) {

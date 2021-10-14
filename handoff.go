@@ -98,6 +98,9 @@ func Encrypt(pub [KeySize]byte, reference string, plaintext io.Reader) ([]byte, 
 
 func Decrypt(ciphertextPEM []byte, getKeys func(reference string) (Keys, error)) ([]byte, error) {
 	block, _ := pem.Decode(ciphertextPEM)
+	if block == nil {
+		return nil, fmt.Errorf("no PEM block found in ciphertext")
+	}
 	if block.Type != PEMType {
 		return nil, fmt.Errorf("not a handoff message")
 	}

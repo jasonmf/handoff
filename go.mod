@@ -1,4 +1,4 @@
-module github.com/AgentZombie/handoff
+module github.com/jasonmf/handoff
 
 go 1.14
 
