@@ -1,4 +1,4 @@
-WASM_EXEC_SRC=$(shell go env GOROOT)/misc/wasm/wasm_exec.js
+WASM_EXEC_SRC=$(shell tinygo env TINYGOROOT)/targets/wasm_exec.js
 
 WORK=work
 ASSETS=${WORK}/assets
@@ -20,7 +20,8 @@ ${ASSETS}:
 	mkdir -p ${ASSETS}
 
 ${BIN}: main.go ../../*.go ${ASSETS}
-	GOOS=js GOARCH=wasm go build -o $@
+	# GOOS=js GOARCH=wasm go build -o $@
+	tinygo build --no-debug -o $@ -target wasm .
 
 ${WASM_EXEC}: ${WASM_EXEC_SRC} ${ASSETS}
 	cp ${WASM_EXEC_SRC} $@

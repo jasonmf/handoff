@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"syscall/js"
 
@@ -50,11 +49,10 @@ func wrapGenerate() js.Func {
 		if err != nil {
 			return err.Error()
 		}
-		b, err := json.Marshal(keys)
-		if err != nil {
-			return err.Error()
+		return map[string]interface{}{
+			"private": keys.Private,
+			"public":  keys.Public,
 		}
-		return string(b)
 	})
 }
 
